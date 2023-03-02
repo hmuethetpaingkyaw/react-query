@@ -1,7 +1,8 @@
-import { useInfiniteQuery } from "@tanstack/react-query"
-import { getPostsPaginated } from "./api/posts"
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getPostsPaginated } from "./api/posts";
+import { useLoadMore } from "./queries/useLoadMore";
 
-export  default function PostListInfinite() {
+export default function PostListInfinite() {
   const {
     status,
     error,
@@ -9,21 +10,17 @@ export  default function PostListInfinite() {
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["posts", "infinite"],
-    getNextPageParam: prevData => prevData.nextPage,
-    queryFn: ({ pageParam = 1 }) => getPostsPaginated(pageParam),
-  })
+  } = useLoadMore("posts", "infinite");
 
-  if (status === "loading") return <h1>Loading...</h1>
-  if (status === "error") return <h1>{JSON.stringify(error)}</h1>
+  if (status === "loading") return <h1>Loading...</h1>;
+  if (status === "error") return <h1>{JSON.stringify(error)}</h1>;
 
   return (
     <>
       <h1>Post List Infinite</h1>
       {data.pages
-        .flatMap(data => data.posts)
-        .map(post => (
+        .flatMap((data) => data.posts)
+        .map((post) => (
           <div key={post.id}>{post.title}</div>
         ))}
       {hasNextPage && (
@@ -32,5 +29,5 @@ export  default function PostListInfinite() {
         </button>
       )}
     </>
-  )
+  );
 }

@@ -1,27 +1,32 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useRef } from "react"
-import { createPost } from "./api/posts"
-import Post from "./Post"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
+import { createPost } from "./api/posts";
+import Post from "./Post";
+import { usePost } from "./queries/useGenericMutation";
 
 export function CreatePost({ setCurrentPage }) {
-  const titleRef = useRef()
-  const bodyRef = useRef()
-  const queryClient = useQueryClient()
-  const createPostMutation = useMutation({
-    mutationFn: createPost,
-    onSuccess: data => {
-    queryClient.setQueryData(["posts", data.id], data)
-      queryClient.invalidateQueries(["posts"], { exact: true })
-      setCurrentPage(<Post id={data.id} />)
-    },
-  })
+  const titleRef = useRef();
+  const bodyRef = useRef();
+  const queryClient = useQueryClient();
+  // const createPostMutation = useMutation({
+  //   mutationFn: createPost,
+  //   onSuccess: data => {
+  //   queryClient.setQueryData(["posts", data.id], data)
+  //     queryClient.invalidateQueries(["posts"], { exact: true })
+  //     setCurrentPage(<Post id={data.id} />)
+  //   },
+  // })
+  const createPostMutation = usePost("posts", null, (oldData, newData) => [
+    ...oldData,
+    newData,
+  ]);
 
   function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
     createPostMutation.mutate({
       title: titleRef.current.value,
       body: bodyRef.current.value,
-    })
+    });
   }
 
   return (
@@ -42,5 +47,5 @@ export function CreatePost({ setCurrentPage }) {
         </button>
       </form>
     </div>
-  )
+  );
 }
